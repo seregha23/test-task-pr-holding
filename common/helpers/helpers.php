@@ -24,16 +24,3 @@ function response(): Response {
 function app(): Application {
     return Yii::$app;
 }
-
-function asDate($value, string $format = 'long'): string {
-    return Yii::$app->getFormatter()->asDate($value, $format);
-}
-
-function asDateTime($value, string $format = 'medium'): string {
-    return Yii::$app->getFormatter()->asDatetime($value, $format);
-}
-
-
-function asTimestamp($value): string {
-    return Yii::$app->getFormatter()->asTimestamp($value);
-}

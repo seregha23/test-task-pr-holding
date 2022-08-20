@@ -3,8 +3,10 @@
 /** @var View $this */
 /* @var $apples Apple[] */
 /* @var $apple Apple */
+/* @var $eatAppleForm EatAppleForm */
 
 use common\models\Apple;
+use backend\models\forms\EatAppleForm;
 use yii\web\View;
 
 ?>
@@ -17,14 +19,10 @@ use yii\web\View;
         <?php if (isset($apples)) { ?>
             <div class="apples__items">
                 <?php foreach ($apples as $apple) { ?>
-                    <div class="apples__item">
-                        <div class="apples__id"><?= $apple->id ?>1</div>
-                        <div class="apples__color"><?= $apple->color ?>2</div>
-                        <div class="apples__size"><?= $apple->size ?>3</div>
-                        <div class="apples__status"><?= $apple->status ?>4</div>
-                        <div class="apples__create-date"><?= $apple->create_date ?>5</div>
-                        <div class="apples__full-date"><?= $apple->fall_date ?>6</div>
-                    </div>
+                    <?= $this->render('_apple', [
+                            'apple'        => $apple,
+                            'eatAppleForm' => $eatAppleForm,
+                    ]) ?>
                 <?php } ?>
             </div>
         <?php } ?>
@@ -34,17 +32,6 @@ use yii\web\View;
 <?php
 
 $js = <<<EOF
-    $('#apples-generate').on('click', function(e) {
-        e.preventDefault();
-        $.ajax({
-            type: 'POST',
-            url: '/apples/ajax-generate-random',
-            dataType: 'json',
-            success: function (data) {
-                //$('.alert-message').html(data.message);
-            }
-        });
-    });
 
 EOF;
 $this->registerJs($js);

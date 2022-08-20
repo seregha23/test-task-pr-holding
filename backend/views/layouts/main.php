@@ -74,7 +74,9 @@ AppAsset::register($this);
         <p class="float-end"><?= Yii::powered() ?></p>
     </div>
 </footer>
-
+<div class="alert-message" style="display: none">
+    <span></span>
+</div>
 <?php $this->endBody() ?>
 </body>
 </html>
