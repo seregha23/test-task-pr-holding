@@ -52,13 +52,16 @@ class Apple extends ActiveRecord {
     }
 
     public function fallToGround(): void {
+        if ($this->status_id == self::STATUS_ROTTEN_APPLE) {
+            throw new ErrorException('Яблоко уже гнилое на земле');
+        }
         $this->status_id = self::STATUS_ON_GROUND;
         $this->save();
     }
 
     /** @throws ErrorException */
     public function eat(int $size): void {
-        if ($this->status_id == Apple::STATUS_ON_TREE) {
+        if ($this->status_id == self::STATUS_ON_TREE) {
             throw new ErrorException('Съесть нельзя, яблоко на дереве');
         }
 
@@ -78,7 +81,7 @@ class Apple extends ActiveRecord {
     }
 
     public function afterFind(): void {
-        if ( (time() - strtotime($this->fell_at)) > 5 * 60 * 60  ) {
+        if ( $this->fell_at && (time() - strtotime($this->fell_at)) > 5 * 60 * 60  ) {
             $this->status_id = self::STATUS_ROTTEN_APPLE;
             $this->save();
         }

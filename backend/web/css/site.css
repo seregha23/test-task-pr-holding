@@ -95,7 +95,7 @@ a.desc:after {
 }
 .apples__item {
     display: grid;
-    grid-template-columns: repeat( 9, minmax(11%, 1fr) );
+    grid-template-columns: repeat( 9, minmax(7%, 1fr) );
     grid-gap: 10px;
 }
 
@@ -106,7 +106,8 @@ a.desc:after {
 }
 
 .apples__item:not(:last-child) {
-    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ced4da;
 }
 
 div.apples__button {

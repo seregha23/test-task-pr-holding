@@ -2,10 +2,9 @@
 
 namespace backend\models\forms;
 
-
 use yii\base\Model;
 
-class FallAppleForm extends Model {
+class RemoveAppleForm extends Model {
 
     public int $id;
 

@@ -2,48 +2,75 @@
 
 namespace backend\controllers;
 
+use backend\models\forms\RemoveAppleForm;
 use common\helpers\ApplesProvider;
 use common\models\Apple;
 use backend\models\forms\EatAppleForm;
 use backend\models\forms\FallAppleForm;
 use ErrorException;
 use Yii;
-use yii\web\BadRequestHttpException;
 use yii\web\Controller;
 use yii\web\Response;
 
 class ApplesController extends Controller {
 
-    /** @throws BadRequestHttpException */
-    public function beforeAction($action): bool {
-        $this->enableCsrfValidation = false;
-        return parent::beforeAction($action);
-    }
-
     public function actionIndex(): string {
-        $apples       = Apple::find()->all();
-        $eatAppleForm = new EatAppleForm();
+//        $query  = Apple::find();
+//        $pages  = new Pagination(['totalCount' => $query->count(),'pageSize' => 4]);
+//        $apples = Apple::find()->offset($pages->offset)->limit($pages->limit)->all();
 
-        return $this->render('//apples/index', [
-            'apples'       => $apples,
-            'eatAppleForm' => $eatAppleForm,
+        return $this->render('index', [
+            'apples'          => Apple::find()->all(),
+            'eatAppleForm'    => new EatAppleForm(),
+            'fallAppleForm'   => new FallAppleForm(),
+            'removeAppleForm' => new RemoveAppleForm(),
             ]);
-    }
-
-    public function actionFallToGround(int $id): Response {
-        $apple = Apple::find()->andWhere(['id' => $id])->one();
-        $apple->fallToGround();
-        return $this->redirect('//apples/index');
     }
 
     public function actionRegenerateRandomApples(): Response {
         $appleHelper = new ApplesProvider();
         $appleHelper::regenerateRandomApples();
-        return $this->redirect('//apples/index');
+        app()->session->setFlash('success', "Яблоки сгенерированы");
+        return $this->redirect('index');
     }
+
+    public function actionFallToGround(): Response {
+        $fallAppleForm = new FallAppleForm();
+        if ($fallAppleForm->load(request()->post()) && $fallAppleForm->validate()) {
+            $idApple = $fallAppleForm->getId();
+            $apple   = Apple::find()->andWhere(['id' => $idApple])->one();
+            $apple->fallToGround();
+            app()->session->setFlash('success', "Яблоко упало");
+        }
+        return $this->redirect('index');
+    }
+
+    public function actionEatApple(): Response {
+        $eatAppleForm = new EatAppleForm();
+        if ($eatAppleForm->load(request()->post()) && $eatAppleForm->validate()) {
+            $idApple = $eatAppleForm->getId();
+            $apple   = Apple::find()->andWhere(['id' => $idApple])->one();
+            $apple->eat($eatAppleForm->getSize());
+            app()->session->setFlash('success', "Яблоко откушено");
+        }
+        return $this->redirect('index');
+    }
+
+    public function actionRemoveApple(): Response {
+        $removeAppleForm = new RemoveAppleForm();
+        if ($removeAppleForm->load(request()->post()) && $removeAppleForm->validate()) {
+            $idApple = $removeAppleForm->getId();
+            $apple   = Apple::find()->andWhere(['id' => $idApple])->one();
+            $apple->delete();
+            app()->session->setFlash('success', "Яблоко удалено");
+        }
+        return $this->redirect('index');
+    }
+
 
     public function actionAjaxRegenerateRandomApples(): array {
         $response = [
+            'success' => false,
             'message' => 'Ошибка при генерации'
         ];
         Yii::$app->response->format = Response::FORMAT_JSON;
@@ -51,13 +78,7 @@ class ApplesController extends Controller {
         if (request()->isAjax) {
             $appleHelper = new ApplesProvider();
             $appleHelper::regenerateRandomApples();
-            $response = [
-                'html' => $this->renderPartial('index',  [
-                    'apples'       => Apple::find()->all(),
-                    'eatAppleForm' => new EatAppleForm(),
-                ]),
-                'message' => 'Успешно сгенерировано'
-            ];
+            $response = $this->ajaxResponse('Успешно сгенерировано');
         }
         return $response;
     }
@@ -73,9 +94,7 @@ class ApplesController extends Controller {
             if ($fallAppleForm->load(request()->post()) && $fallAppleForm->validate()) {
                 $apple = Apple::find()->andWhere(['id' => $fallAppleForm->getId()])->one();
                 $apple->fallToGround();
-                $response = [
-                    'message' => 'Яблоко упало'
-                ];
+                $response = $this->ajaxResponse('Яблоко упало');
             }
         }
         return $response;
@@ -83,6 +102,7 @@ class ApplesController extends Controller {
 
     public function actionAjaxEatApple(): array {
         $response = [
+            'success' => false,
             'message' => 'Ошибка при "откусить"'
         ];
         Yii::$app->response->format = Response::FORMAT_JSON;
@@ -93,14 +113,7 @@ class ApplesController extends Controller {
                 $idApple = $eatAppleForm->getId();
                 $apple   = Apple::find()->andWhere(['id' => $idApple])->one();
                 $apple->eat($eatAppleForm->getSize());
-                $response = [
-                    'id'   => $idApple,
-                    'html' => $this->renderPartial('_apple', [
-                        'apples'       => Apple::find()->all(),
-                        'eatAppleForm' => $eatAppleForm,
-                    ]),
-                    'message' => 'Яблоко откушено'
-                ];
+                $response = $this->ajaxResponse( 'Яблоко откушено');
             }
         }
         return $response;
@@ -109,19 +122,36 @@ class ApplesController extends Controller {
     /** @throws ErrorException */
     public function actionAjaxRemoveApple(): array {
         $response = [
+            'success' => false,
             'message' => 'Ошибка при удалении'
         ];
         Yii::$app->response->format = Response::FORMAT_JSON;
 
         if (request()->isAjax) {
-            $id = (int) request()->post('id');
-            $apple = Apple::find()->andWhere(['id' => $id])->one();
-            $apple->delete();
-            $response = [
-                'id'      => $id,
-                'message' => 'Яблоко удалено'
-            ];
+            $removeAppleForm = new RemoveAppleForm();
+            if ($removeAppleForm->load(request()->post()) && $removeAppleForm->validate()) {
+                $idApple = $removeAppleForm->getId();
+                $apple = Apple::find()->andWhere(['id' => $idApple])->one();
+                $apple->delete();
+                $response = $this->ajaxResponse('Яблоко удалено');
+            }
         }
         return $response;
+    }
+
+    protected function ajaxResponse( string $message): array {
+        return [
+            'success' => true,
+            'html' => [
+                'cssClass' => '.apples__wrapper',
+                'layout'   => $this->renderPartial('index', [
+                    'apples'          => Apple::find()->all(),
+                    'eatAppleForm'    => new EatAppleForm(),
+                    'fallAppleForm'   => new FallAppleForm(),
+                    'removeAppleForm' => new RemoveAppleForm(),
+                ])
+            ],
+            'message' => $message,
+        ];
     }
 }

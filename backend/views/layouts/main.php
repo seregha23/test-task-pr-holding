@@ -74,6 +74,12 @@ AppAsset::register($this);
         <p class="float-end"><?= Yii::powered() ?></p>
     </div>
 </footer>
+<?php if(app()->session->hasFlash('success')):?>
+    <div class="info">
+        <?php echo app()->session->getFlash('success'); ?>
+    </div>
+<?php endif; ?>
+
 <div class="alert-message" style="display: none">
     <span></span>
 </div>

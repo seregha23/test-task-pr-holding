@@ -3,7 +3,12 @@
 /** @var View $this */
 /* @var $apple Apple */
 /* @var $eatAppleForm EatAppleForm */
+/* @var $fallAppleForm FallAppleForm */
+/* @var $removeAppleForm RemoveAppleForm */
 
+
+use backend\models\forms\FallAppleForm;
+use backend\models\forms\RemoveAppleForm;
 use common\models\Apple;
 use backend\models\forms\EatAppleForm;
 use yii\helpers\Html;
@@ -20,19 +25,33 @@ use yii\widgets\ActiveForm;
     <div class="apples__create-date"><?= $apple->create_at ?></div>
     <div class="apples__full-date"><?= $apple->fell_at ?></div>
     <div class="apples__button">
-        <a id="fall-to-ground" data-id="<?= $apple->id ?>" href="javascript:void(0)" class="btn btn-primary <?= $apple->status_id == Apple::STATUS_ON_TREE ? '' : 'disabled'  ?>">Упасть</a>
+        <?php $form = ActiveForm::begin([
+            'action' => url(['apples/fall-to-ground']),
+            'options' => ['class' =>'fall-apple-form w-100 ajax-form', 'data-action' => 'ajax-fall-to-ground']
+        ]); ?>
+        <?= Html::activeHiddenInput($fallAppleForm, 'id', ['value' => $apple->id]) ?>
+        <?= Html::submitButton('Упасть', ['class' => 'btn btn-warning btn-block w-100', 'name' => 'fall-apple-button']) ?>
+        <?php ActiveForm::end(); ?>
     </div>
     <div class="apples__button">
         <?php $form = ActiveForm::begin([
-                'options' => ['class' =>'eat-apple-form']
+                'action' => url(['apples/eat-apple']),
+                'options' => ['class' =>'eat-apple-form ajax-form', 'data-action' => 'ajax-eat-apple']
             ]); ?>
         <?= Html::activeHiddenInput($eatAppleForm, 'id', ['value' => $apple->id]) ?>
-        <?= $form->field($eatAppleForm, 'size')->textInput(['autofocus' => true]) ?>
+        <?= $form->field($eatAppleForm, 'size')->textInput() ?>
         <?= Html::submitButton('Откусить', ['class' => 'btn btn-primary btn-block', 'name' => 'eat-apple-button']) ?>
         <?php ActiveForm::end(); ?>
     </div>
     <div class="apples__button">
-        <a data-id="<?= $apple->id ?>" href="javascript:void(0)" class="btn btn-danger remove-apple">Удалить</a>
+        <?php $form = ActiveForm::begin([
+            'action' => url(['apples/remove-apple']),
+            'options' => ['class' =>'remove-apple-form w-100 ajax-form', 'data-action' => 'ajax-remove-apple']
+        ]); ?>
+        <?= Html::activeHiddenInput($removeAppleForm, 'id', ['value' => $apple->id]) ?>
+        <?= Html::submitButton('Удалить', ['class' => 'btn btn-danger btn-block w-100', 'name' => 'remove-apple-button']) ?>
+        <?php ActiveForm::end(); ?>
     </div>
 </div>
+
 
