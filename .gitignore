@@ -37,7 +37,7 @@ phpunit.phar
 # vagrant runtime
 /.vagrant
 
-/.log
+/.logs
 
 # ignore generated files
 /frontend/web/index.php

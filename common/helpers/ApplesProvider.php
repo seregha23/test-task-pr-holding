@@ -13,7 +13,7 @@ class ApplesProvider {
             $apple->color_id    = array_rand(Apple::$colors);
             $apple->status_id   = array_rand(Apple::$statuses);
             $apple->size        = 100;
-            $apple->create_at = date( 'Y-m-d H:i:s', time() );
+            $apple->create_at   = date( 'Y-m-d H:i:s', time() );
             $apple->save(false);
         }
     }

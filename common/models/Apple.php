@@ -56,6 +56,7 @@ class Apple extends ActiveRecord {
             throw new ErrorException('Яблоко уже гнилое на земле');
         }
         $this->status_id = self::STATUS_ON_GROUND;
+        $this->fell_at   = date( 'Y-m-d H:i:s', time() );
         $this->save();
     }
 
