@@ -1,0 +1,8 @@
+includes:
+	- vendor/proget-hq/phpstan-yii2/extension.neon
+parameters:
+    level: 7
+    paths:
+        - backend/controllers
+    yii2:
+        config_path: %rootDir%/../../../config/test.php
