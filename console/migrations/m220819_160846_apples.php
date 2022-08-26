@@ -20,9 +20,9 @@ class m220819_160846_apples extends Migration
             'id'          => $this->primaryKey(),
             'color_id'    => $this->integer(10),
             'status_id'   => $this->integer(10),
-            'size'        => $this->decimal(10, 1),
-            'create_at'   => $this->dateTime(),
-            'fell_at'     => $this->dateTime()
+            'size'        => $this->decimal(6, 2)->defaultValue(100),
+            'created_at'  => $this->timestamp(),
+            'fell_at'     => $this->timestamp()->defaultValue(null),
         ], $tableOptions);
     }
 

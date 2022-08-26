@@ -2,32 +2,31 @@
 
 namespace backend\models\forms;
 
+use common\models\Apple;
 use yii\base\Model;
 
 class EatAppleForm extends Model {
+    /** @var int */
+    public $appleId;
 
-    public ?int $id = null;
-    public ?int $size = null;
+    /** @var float $size */
+    public $size;
+
+    public ?Apple $apple = null;
 
     public function rules(): array {
         return [
-          [['id', 'size'], 'required'],
-          ['id', 'integer', 'min' => 1],
-          ['size', 'integer', 'min' => 1 , 'max' => 100, 'message' => 'Неверно'],
+            ['appleId', 'required'],
+            ['appleId', 'checkAppleExistence'],
+            ['size', 'number', 'min' => 0 , 'max' => 100, 'message' => 'Неверный размер куска'],
         ];
     }
 
-    public function attributeLabels(): array {
-        return [
-            'size' => 'Кол-во',
-        ];
-    }
+    public function checkAppleExistence() {
+        $this->apple = Apple::findOne($this->appleId);
 
-    public function getId(): int {
-        return $this->id;
-    }
-
-    public function getSize(): int {
-        return $this->size;
+        if (!$this->apple) {
+            $this->addError('appleId', 'Яблоко не существует');
+        }
     }
 }
